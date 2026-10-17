@@ -1,4 +1,5 @@
 \documentclass[11pt]{book}
+\usepackage{url}
 \usepackage{amsmath,latexsym,amsthm}
 \usepackage{mathrsfs}
 \usepackage[english]{babel}
@@ -133,7 +134,7 @@ Madaniyat & 238 &  &  \\
 
 \textbf{Shared-search protocol for news.} After the fixed-budget results, we gave every model the same search space: learning rates $3\times10^{-5}$, $5\times10^{-5}$ and $10^{-4}$, six epochs, maximum length 512, and an effective batch size of 32. The search used one pilot seed (13); each model's configuration was chosen only on validation Macro-F1, and the test set was not consulted. The chosen configuration was then run with seeds 13, 21 and 42. Every configuration was also repeated on ASCII-normalized text: after Unicode NFC normalization, the characters U+2018, U+2019, U+02BB, U+02BC, U+02B9, U+2032, U+00B4 and the grave accent were replaced by the ASCII apostrophe, and the selected configuration was reused without new tuning. The same normalization was applied in an ablation on WikiANN (five seeds, single learning rate).
 
-\textbf{Reproducibility.} Software: Python 3.13, PyTorch 2.11, Transformers 5.16.1, Datasets 4.8.5. Run-level results, per-run predictions and environment files are available from the authors \todo{INFORMATION REQUIRED: repository URL}.
+\textbf{Reproducibility.} Software: Python 3.13, PyTorch 2.11, Transformers 5.16.1, Datasets 4.8.5. Run-level results, per-run predictions and environment files are available from the authors \url{https://github.com/RJalol/uz-encoder-benchmark}.
 
 \begin{center}
 \textbf{Results}
@@ -279,11 +280,11 @@ In a controlled comparison on three Uzbek benchmarks, TahrirchiBERT-base was the
 \textbf{Declarations}
 \end{center}
 
-\textbf{Data availability.} All datasets are public. Revisions used (Hugging Face commit hashes, first eight characters): SIB-200 \texttt{38977a66}; WikiANN \texttt{f0a3be6d}; news corpus \texttt{f9399a72}; XLM-R-base \texttt{e73636d4}; mBERT \texttt{3f076fdb}; TahrirchiBERT-base \texttt{e9961825}; TahrirchiBERT-small \texttt{16d3c1b5} (weights) and \texttt{1940aa76} (tokenizer and configuration) (the first is the revision with the \texttt{safetensors} weights, the second the current tokenizer and configuration revision of the same repository). Licences: SIB-200 is tagged CC BY-SA 4.0 on its Hugging Face card; the news corpus is released on Zenodo under CC BY 4.0 (its Hugging Face card states no licence); the WikiANN card on Hugging Face lists the licence as unknown; the TahrirchiBERT-base card states Apache-2.0. Code and run-level results: \todo{INFORMATION REQUIRED: repository URL}.
+\textbf{Data availability.} All datasets are public. Revisions used (Hugging Face commit hashes, first eight characters): SIB-200 \texttt{38977a66}; WikiANN \texttt{f0a3be6d}; news corpus \texttt{f9399a72}; XLM-R-base \texttt{e73636d4}; mBERT \texttt{3f076fdb}; TahrirchiBERT-base \texttt{e9961825}; TahrirchiBERT-small \texttt{16d3c1b5} (weights) and \texttt{1940aa76} (tokenizer and configuration) (the first is the revision with the \texttt{safetensors} weights, the second the current tokenizer and configuration revision of the same repository). Licences: SIB-200 is tagged CC BY-SA 4.0 on its Hugging Face card; the news corpus is released on Zenodo under CC BY 4.0 (its Hugging Face card states no licence); the WikiANN card on Hugging Face lists the licence as unknown; the TahrirchiBERT-base card states Apache-2.0. Code and run-level results: \url{https://github.com/RJalol/uz-encoder-benchmark}.
 
 \textbf{Use of AI tools.} An AI assistant (Claude, Anthropic) was used to help write the analysis code and to draft and edit this text. The author is responsible for the experimental design, the verification of all results and statements, and the final content.
 
-\textbf{Funding, conflicts of interest, ethics.} \todo{INFORMATION REQUIRED}. The study uses only public text and involves no human participants.
+\textbf{Funding.} This research received no external funding. \textbf{Conflict of interest.} The author declares no conflict of interest. \textbf{Ethics.} The study uses only publicly available text and involves no human participants or personal data requiring ethical approval.
 
 \begin{center}\textbf{REFERENCES}\end{center}
 \begin{enumerate}
