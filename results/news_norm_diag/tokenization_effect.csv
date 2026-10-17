@@ -1,0 +1,13 @@
+model,cond,mean_tokens,unk_rate
+xlmr-base,orig,542.08,0.0
+xlmr-base,nfc,542.08,0.0
+xlmr-base,norm_ascii,542.072,0.0
+mbert,orig,720.484,0.053023784580451934
+mbert,nfc,720.484,0.053023784580451934
+mbert,norm_ascii,721.168,0.01071063403115124
+tahrirchi-base,orig,452.458,0.0
+tahrirchi-base,nfc,452.458,0.0
+tahrirchi-base,norm_ascii,459.322,0.0
+tahrirchi-small,orig,439.186,0.0
+tahrirchi-small,nfc,439.186,0.0
+tahrirchi-small,norm_ascii,441.974,0.0

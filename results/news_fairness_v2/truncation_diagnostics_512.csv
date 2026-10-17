@@ -1,0 +1,5 @@
+model,max_len,tokens_per_doc,docs_truncated,text_kept_fraction
+xlmr-base,512,533.089,0.269,0.8971858198786908
+mbert,512,709.804,0.41,0.8384013638859243
+tahrirchi-base,512,445.49,0.201,0.9209806168647492
+tahrirchi-small,512,432.919,0.187,0.9245805648620826

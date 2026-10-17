@@ -1,0 +1,6 @@
+{
+  "mbert": "e_lr3",
+  "tahrirchi-base": "e_lr3",
+  "tahrirchi-small": "e_lr5",
+  "xlmr-base": "e_lr3"
+}
