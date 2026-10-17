@@ -1,0 +1,280 @@
+\documentclass[11pt]{book}
+\usepackage{amsmath,latexsym,amsthm}
+\usepackage{mathrsfs}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{multirow}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage{textcomp}
+\usepackage{amsfonts}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\parindent 10mm
+\parskip 2pt
+\textwidth=170mm \textheight=230mm \oddsidemargin=-10mm
+\evensidemargin -18mm \topmargin=-10mm \hoffset 10mm
+\tolerance=5000 \addtolength{\headheight}{0.5pt}
+
+\makeatletter
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\fancyhead[L]{\textsc{\textbf{ \textcolor{blue}{Acta NUUz}}}}
+\fancyhead[C]{ \textsc{\textbf{\textcolor{blue}{Exact sciences}}} }
+\fancyhead[R]{\textbf{ \textcolor{blue}{\textsc{2/**, ***,} \pageref{firstpage}-\pageref{lastpage}}}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand\headrule{\vskip-1 \headheight \hrulefill \vskip1pt \hrulefill}\setlength\headheight{24pt}
+
+\fancyfoot[RO]{\thepage}
+\fancyfoot[LE]{\thepage}
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{*}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[#1]}}}
+\begin{document}
+\sloppy
+
+\renewcommand{\thefootnote}{}
+\begin{center}
+\textsc{\textbf{Encoder models for Uzbek text classification and named entity recognition: a controlled comparison with tokenization and orthographic-variation analysis}}\\
+\footnotetext{\textbf{Received:} dd.mm.yyyy, \textbf{Accepted:} dd.mm.yyyy}
+\medskip
+
+\textsc{\textbf{Jaloliddin Rajabov*\footnote{*Corresponding author}}}\\
+\textsc{National University of Uzbekistan named after Mirzo Ulugbek, Department of Applied Mathematics and Computer Analysis, Tashkent, Uzbekistan; Banking and Finance Academy of the Republic of Uzbekistan, International School of Banking, Tashkent, Uzbekistan}\\
+{j.rajabov@nuu.uz}\\
+\end{center}
+
+\noindent\rule{\linewidth}{1.0 pt}
+
+\begin{quote}
+\textsc{\textcolor{blue}{\textbf{Abstract.}}}
+We compare four transformer encoders on three Uzbek benchmarks: XLM-R-base, multilingual BERT (mBERT), and the Uzbek-specific TahrirchiBERT in its base and small versions. The tasks are topic classification (SIB-200), named entity recognition (WikiANN) and 15-class news classification. With a single shared training budget and five seeds, TahrirchiBERT-base reached a news Macro-F1 of @@f3(X('uz_news','tahrirchi-base'))@@, against @@f3(X('uz_news','xlmr-base'))@@ for XLM-R and @@f3(X('uz_news','mbert'))@@ for mBERT. In that setting mBERT failed to predict at least one class in @@sum(1 for c in col['mbert'] if c>0)@@ of 5 runs and XLM-R in @@sum(1 for c in col['xlmr-base'] if c>0)@@ of 5, so the gap mostly reflected an under-trained baseline. After a shared, validation-based hyperparameter search with 512-token inputs (three seeds), no run collapsed and the gap between TahrirchiBERT-base and XLM-R fell to @@f3(tb_x.mean_diff)@@ Macro-F1 (Holm-adjusted $@@peq(tb_x.p_holm)@@$). On named entity recognition the multilingual models scored higher (entity F1 @@f3(X('wikiann_uz','xlmr-base'))@@--@@f3(X('wikiann_uz','mbert'))@@ against @@f3(X('wikiann_uz','tahrirchi-small'))@@--@@f3(X('wikiann_uz','tahrirchi-base'))@@) under one fixed learning rate. Finally, we find that the news corpus carries class-dependent apostrophe and quotation-mark conventions; replacing these characters by ASCII \texttt{'} lowered news Macro-F1 by @@f3(-dmax)@@--@@f3(-dmin)@@ for all four models, with about half of the drop coming from one small class. We discuss what these results do and do not show.
+\\ [6pt]
+\textcolor{blue}{\textbf{MSC (2020): {68T50; 68T07}.}}
+\\ [6pt]
+\textit{\textcolor{blue}{\textbf{Key words:}}} Uzbek language, text classification, named entity recognition, tokenization, low-resource languages, evaluation.
+\end{quote}
+
+\noindent\rule{\linewidth}{1.0 pt}
+
+\vspace{0.3cm}
+
+\label{firstpage}
+
+\begin{center}
+\textbf{Introduction}
+\end{center}
+
+Uzbek is usually treated as a low-resource language in natural language processing. Practitioners who need a pretrained encoder for Uzbek text usually choose between two kinds of models: multilingual encoders such as mBERT [1] and XLM-R [2], which cover Uzbek among many other languages, and encoders trained on Uzbek text alone, such as TahrirchiBERT [7]. A fair comparison between them is harder than it looks. The models differ in size, tokenizer and pretraining data, and a single fixed training recipe can favour one family over another without anyone intending it.
+
+This paper reports a controlled comparison of four encoders on three public Uzbek benchmarks, and it also examines why some of the observed differences appear. Our main findings are as follows.
+
+\begin{enumerate}
+\item Under one shared training recipe the news-classification results looked strongly in favour of TahrirchiBERT. Inspecting the per-run predictions showed that the multilingual models often never predicted one or two classes. When every model was given the same validation-based search and longer inputs, the gap shrank substantially but did not disappear.
+\item Named entity recognition showed the opposite ordering: mBERT and XLM-R were ahead of TahrirchiBERT. We could rule out one candidate explanation, apostrophe variants, but we have not identified the cause.
+\item The news corpus contains class-dependent typographic conventions (for example, one small class uses the grave accent as its only apostrophe-like character). A normalization that removes this information lowers accuracy for every model, which suggests that part of the benchmark score reflects orthography rather than topic.
+\end{enumerate}
+
+Tokenizer quality is known to matter for multilingual models [3], and annotation artefacts and shortcut features are well documented for other tasks [8,9]. We bring both lines of work to a small Uzbek setting, and we try to separate what our evidence supports from what remains a hypothesis. All numbers in this paper come from the runs described below; nothing has been taken from other papers.
+
+\begin{center}
+\textbf{Data, models and experimental protocol}
+\end{center}
+
+\textbf{Datasets.} We use three public datasets, all through the Hugging Face hub at the revisions listed in the Declarations.
+
+\emph{SIB-200} [5] is a topic-classification benchmark built on translated sentences; we use the Uzbek (Latin script, \texttt{uzn\_Latn}) portion, whose test split has 204 sentences. \emph{WikiANN} [4] provides automatically derived person, location and organization annotations from Wikipedia; we use the Uzbek subset and report entity-level F1. \emph{News} is the Uzbek text-classification corpus of Kuriyozov et al. [6], with 15 categories collected from news and press websites (the paper reports 10 websites while the Zenodo record and the Hugging Face card of the dataset state 9 news and press websites; we therefore do not give a number of sources as established). Because of compute limits we used a fixed random subsample, drawn once with seed 0 and identical for all models: 10,000 training, 2,000 validation and 5,000 test documents. Class sizes in the training subsample are very unequal (Table 2). English glosses of the Uzbek class names are ours.
+
+\begin{center}
+\textbf{Table 1.} Models. Parameter counts include the classification head (SIB-200 setting).\\[2pt]
+\begin{tabular}{lrl}
+\hline
+Model & Params (M) & Tokenizer \\
+\hline
+@@T1@@
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\textbf{Table 2.} Number of training documents per news class in the subsample (Avto: cars; Ayollar: women; Dunyo: world; Foto: photo; Iqtisodiyot: economy; Jamiyat: society; Jinoyat: crime; Madaniyat: culture; O\textquoteleft zbekiston: Uzbekistan; Pazandachilik: cookery; Qonunchilik: legislation; Salomatlik: health; Siyosat: politics; Texnologiya: technology).\\[2pt]
+\begin{tabular}{lrlr}
+\hline
+Class & $n$ & Class & $n$ \\
+\hline
+@@T8@@
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Models.} XLM-R-base [2], mBERT (cased) [1], and TahrirchiBERT-base and -small [7]. According to its model card, TahrirchiBERT was pretrained on Uzbek web crawl and book text (about 5 billion tokens) with a byte-level BPE tokenizer of 30,528 types; the accompanying paper is listed as forthcoming, so we cite the model card.
+
+\textbf{Fixed-budget benchmark.} For SIB-200 and WikiANN we used learning rate $3\times10^{-5}$, 10 epochs, batch size 16 and maximum length 128; for news, $2\times10^{-5}$, 3 epochs, batch size 32 and maximum length 256. All runs used AdamW with weight decay 0.01, 10\% linear warm-up, mixed precision on one Tesla T4 GPU, and the checkpoint with the best validation score. Each configuration was run with five seeds (13, 21, 42, 87, 100). Classification is scored by Macro-F1 and NER by entity-level F1 under IOB2 (our own implementation, checked against a hand-built example). The same recipe was applied to every model without model-specific tuning. We report mean $\pm$ standard deviation; between-model differences use Welch's $t$-test on seed-level scores with Holm correction within each dataset. With five seeds these tests have limited power and we treat them as descriptive.
+
+\textbf{Shared-search protocol for news.} After the fixed-budget results, we gave every model the same search space: learning rates $3\times10^{-5}$, $5\times10^{-5}$ and $10^{-4}$, six epochs, maximum length 512, and an effective batch size of 32. The search used one pilot seed (13); each model's configuration was chosen only on validation Macro-F1, and the test set was not consulted. The chosen configuration was then run with seeds 13, 21 and 42. Every configuration was also repeated on ASCII-normalized text: after Unicode NFC normalization, the characters U+2018, U+2019, U+02BB, U+02BC, U+02B9, U+2032, U+00B4 and the grave accent were replaced by the ASCII apostrophe, and the selected configuration was reused without new tuning. The same normalization was applied in an ablation on WikiANN (five seeds, single learning rate).
+
+\textbf{Reproducibility.} Software: Python 3.13, PyTorch 2.11, Transformers 5.16.1, Datasets 4.8.5. Run-level results, per-run predictions and environment files are available from the authors \todo{INFORMATION REQUIRED: repository URL}.
+
+\begin{center}
+\textbf{Results}
+\end{center}
+
+\textbf{1. Fixed-budget benchmark.} Table 3 gives the five-seed results. On SIB-200 the ordering was TahrirchiBERT-base first, but with only 204 test sentences the intervals are wide, and after Holm correction no pair differed clearly (smallest adjusted $p$: @@pfmt(sib_tb_ts.p_holm)@@ for TahrirchiBERT-base against -small; @@pfmt(sib_m_tb.p_holm)@@ for mBERT against base). On WikiANN the multilingual models were clearly ahead: mBERT exceeded TahrirchiBERT-base by @@f3(wk_m_tb.mean_diff)@@ F1 (adjusted $@@peq(wk_m_tb.p_holm)@@$), and XLM-R exceeded it by @@f3(-wk_tb_x.mean_diff)@@. On news, TahrirchiBERT led by a large margin, @@f3(nw_tb_x.mean_diff)@@ Macro-F1 over XLM-R and @@f3(-nw_m_tb.mean_diff)@@ over mBERT.
+
+\begin{center}
+\textbf{Table 3.} Fixed-budget results, five seeds (mean $\pm$ SD). SIB-200 and news: Macro-F1; WikiANN: entity F1.\\[2pt]
+\begin{tabular}{lccc}
+\hline
+Model & SIB-200 & News & WikiANN (NER) \\
+\hline
+@@T2@@
+\hline
+\end{tabular}
+\end{center}
+
+The news result needs a caution. For each run we counted the classes that the model never predicted on the test set. For mBERT this happened in @@sum(1 for c in col['mbert'] if c>0)@@ of 5 runs and for XLM-R in @@sum(1 for c in col['xlmr-base'] if c>0)@@ of 5; it never happened for TahrirchiBERT. Such a collapse removes the class entirely from Macro-F1, and the large seed-to-seed deviation of the two multilingual models ($\approx0.05$ against $\approx0.01$) points the same way. We therefore do not read the fixed-budget news gap as evidence about model quality.
+
+\textbf{2. Tokenization.} Table 4 reports fertility (subword tokens per whitespace-delimited word, on the first 2,000 training texts of each dataset), the share of words split into more than one piece, and the share of unknown tokens. mBERT had the highest fertility on SIB-200 and news and an unknown-token rate of @@100*TK.loc[('uz_news','mbert'),'unk_rate']:.1f@@\% on news, while it had the lowest fertility on WikiANN, where it also scored best. With four tokenizers we cannot test any association statistically, and the pattern across tasks does not support a simple ``lower fertility, better score'' rule.
+
+\begin{center}
+\textbf{Table 4.} Tokenizer statistics: fertility / split-word rate (\%) / unknown-token rate (\%).\\[2pt]
+\begin{tabular}{lccc}
+\hline
+Model & SIB-200 & News & WikiANN \\
+\hline
+@@T3@@
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{3. News classification under a shared search.} Table 5 shows the results with 512-token inputs and the shared search. Selected learning rates were $3\times10^{-5}$ for XLM-R, mBERT and TahrirchiBERT-base and $5\times10^{-5}$ for TahrirchiBERT-small. No final run left a class unpredicted. In the original text, TahrirchiBERT-base was ahead of XLM-R by @@f3(tb_x.mean_diff)@@ Macro-F1 (Welch, Holm-adjusted $@@peq(tb_x.p_holm)@@$), against @@f3(nw_tb_x.mean_diff)@@ under the fixed budget. TahrirchiBERT-small and XLM-R were indistinguishable ($@@f3(ts_x.mean_diff)@@$, $@@peq(ts_x.p_holm)@@$), and mBERT was lowest. Moving from 256 to 512 tokens changed the TahrirchiBERT scores by at most @@f3(max(abs(V1V2.loc['tahrirchi-base','diff']),abs(V1V2.loc['tahrirchi-small','diff'])))@@, while mBERT improved by @@f3(V1V2.loc['mbert','diff'])@@ (the earlier 256-token search used slightly different configurations, so this compares two protocols and not a single factor). Even at 512 tokens (first 1,000 test documents), @@100*TR512.loc['mbert','docs_truncated']:.0f@@\% of test documents were truncated for mBERT, @@100*TR512.loc['xlmr-base','docs_truncated']:.0f@@\% for XLM-R and about @@100*TR512.loc['tahrirchi-base','docs_truncated']:.0f@@\% for TahrirchiBERT, so unequal truncation remains.
+
+Three points limit this result. First, three seeds give low statistical power, and the XLM-R comparison sits near the conventional threshold. Second, the lowest grid learning rate was selected for three of four models, and the best epoch was the last one in some runs, so the search may not have been wide enough for mBERT and XLM-R. Third, the pilot used a single seed, so the selection may be noisy.
+
+\begin{center}
+\textbf{Table 5.} News test Macro-F1 with the shared search (512 tokens, three seeds, mean $\pm$ SD). The last column is the change under ASCII normalization (paired $t$-test, Holm-adjusted $p$ in parentheses).\\[2pt]
+\begin{tabular}{lcccc}
+\hline
+Model & LR & Original & ASCII-normalized & Change \\
+\hline
+@@T4@@
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{4. Orthographic variation in the news corpus.} Counting apostrophe-like characters over all 17,000 documents we used, U+2018 occurred in @@cfrac('U+2018'):.0f@@\% of documents, U+2019 in @@cfrac('U+2019'):.0f@@\%, ASCII \texttt{'} in @@cfrac('U+0027'):.0f@@\%, the grave accent in @@cfrac('U+0060'):.0f@@\% and U+02BB in only @@cfrac('U+02BB'):.1f@@\%. These conventions are not spread evenly across categories (Table 6). All 147 documents of the class Jinoyat contain the grave accent, and none contains U+2018 or U+2019, whereas in the very large class O\textquoteleft zbekiston U+2018 appears in nearly every document. A logistic-regression classifier that sees only the counts of these characters reached a Macro-F1 of @@f3(SC.loc['apostrophe_only_LR','test_macro_f1'])@@, against @@f3(SC.loc['majority_class','test_macro_f1'])@@ for always predicting the largest class (Table 7). A bag-of-words model that ignores punctuation lost little under normalization, but a character n-gram model lost @@f3(SC.loc['tfidf_char_orig','test_macro_f1']-SC.loc['tfidf_char_norm_ascii','test_macro_f1'])@@ Macro-F1. So the characters carry class information, and it is plausible (though we did not prove it) that the neural models use it.
+
+\begin{center}
+\textbf{Table 6.} Share of documents (\%) containing each character, for selected news classes.\\[2pt]
+\begin{tabular}{lrccccc}
+\hline
+Class & Docs & ASCII \texttt{'} & U+2018 & U+2019 & grave & U+02BB \\
+\hline
+@@T6@@
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\textbf{Table 7.} Linear baselines on the news test set (Macro-F1).\\[2pt]
+\begin{tabular}{lc}
+\hline
+Model & Macro-F1 \\
+\hline
+@@T7@@
+\hline
+\end{tabular}
+\end{center}
+
+ASCII normalization reduced Macro-F1 for every neural model by between @@f3(-dmax)@@ and @@f3(-dmin)@@ (Table 5; all four changes remain significant after Holm correction with three paired seeds, which is a weak basis). The largest class-level effect was on Jinoyat (Table 8; about half of each model's Macro-F1 drop comes from this one class): F1 for TahrirchiBERT-base fell from @@f3(tbj[0])@@ to @@f3(tbja[0])@@ and for XLM-R from @@f3(xj[0])@@ to @@f3(xja[0])@@. Without that class, the Macro-F1 over the remaining 14 classes still fell by @@f3(-excl_drop['mbert'])@@--@@f3(-excl_drop['xlmr-base'])@@, so other classes also appear to depend on these characters, to a smaller extent. This 14-class view was chosen after seeing the results and should be read as exploratory. Under normalization TahrirchiBERT-base remained ahead of XLM-R by @@f3(tb_x_a.mean_diff)@@ (adjusted $@@peq(tb_x_a.p_holm)@@$), and mBERT became indistinguishable from XLM-R (difference @@f3(m_x_a.mean_diff)@@).
+
+\begin{center}
+\textbf{Table 8.} Class Jinoyat and the other 14 classes (mean over three seeds). Columns: Jinoyat F1 on original text; Jinoyat F1 after ASCII normalization; mean F1 over the other 14 classes, original text and normalized.\\[2pt]
+\begin{tabular}{lcccc}
+\hline
+Model & Jinoyat (orig.) & Jinoyat (ASCII) & 14 classes (orig.) & 14 classes (ASCII) \\
+\hline
+@@T5@@
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{5. Named entity recognition.} The same normalization had a negligible effect on WikiANN (Table 9): the largest absolute change in entity F1 was @@f3(ner_maxabs)@@ and no change was significant after correction. The Uzbek WikiANN training text mostly uses U+02BB as its apostrophe-like character, which differs from the news corpus. The ordering of the models in NER therefore does not appear to be driven by apostrophe variants. Among error types, TahrirchiBERT-base had more type-only errors (@@100*tax.loc['tahrirchi-base','type_only']:.1f@@\% of gold entities, against @@100*tax.loc['xlmr-base','type_only']:.1f@@\% for XLM-R) and more boundary-only errors (@@100*tax.loc['tahrirchi-base','boundary_only']:.1f@@\% against @@100*tax.loc['xlmr-base','boundary_only']:.1f@@\%). We do not know why; candidate explanations, such as a small vocabulary that fragments entity names, or a pretraining corpus that differs in domain from Wikipedia, remain untested. All NER runs used one learning rate, so a model-specific search could change the ranking.
+
+\begin{center}
+\textbf{Table 9.} WikiANN entity F1 on original and ASCII-normalized text (five seeds, mean $\pm$ SD); change with Holm-adjusted $p$.\\[2pt]
+\begin{tabular}{lccc}
+\hline
+Model & Original & ASCII-normalized & Change \\
+\hline
+@@T9@@
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\textbf{Discussion and limitations}
+\end{center}
+
+\textbf{What the evidence supports.} (i) A shared training budget can produce misleading rankings: the multilingual models' poor fixed-budget news scores were substantially an optimization problem. (ii) After a shared search, TahrirchiBERT-base remained ahead of XLM-R on news by roughly three Macro-F1 points, a smaller and less certain lead than in the fixed-budget table. (iii) The ordering is task-dependent, since the multilingual models were ahead on NER. (iv) The news benchmark is sensitive to apostrophe and quotation-mark conventions, and one small class is especially affected.
+
+\textbf{What it does not support.} We have not shown \emph{why} TahrirchiBERT does better on classification or worse on NER. We have not shown that the models rely on typographic characters in a causal sense, only that removing them lowers scores and that the characters are predictive on their own. ASCII normalization also merges the opening and closing quotation marks U+2018 and U+2019, so it is not a pure apostrophe manipulation. TahrirchiBERT's pretraining data include web text, and we did not check whether it overlaps with the news sites in the benchmark.
+
+\textbf{Limitations.} The training set is a subsample of the corpus, fixed across seeds, so seed variance excludes sampling variance. Three or five seeds give coarse $p$-values. Hyperparameter search was small (three learning rates, one pilot seed), and the NER and SIB-200 experiments received no model-specific tuning. Inputs were truncated, unequally across tokenizers. Class sizes in the news data are strongly unequal, so Macro-F1 for the smallest classes is noisy. WikiANN labels are automatically derived and contain noise. Our conclusions concern the specific checkpoints and datasets we tested.
+
+\textbf{Practical implications.} For Uzbek news classification we suggest reporting results on both the original and an orthography-normalized version of the text, giving each model its own validation-based search, and counting never-predicted classes alongside Macro-F1.
+
+\begin{center}
+\textbf{Conclusion}
+\end{center}
+
+In a controlled comparison on three Uzbek benchmarks, TahrirchiBERT-base was the best classifier on news but the weakest family on NER, and the large initial news advantage was mostly an artefact of an under-tuned baseline. The remaining advantage over XLM-R is about three Macro-F1 points under our protocol. Orthographic conventions in the news corpus contribute measurably to scores, so benchmark users should check for such cues. Larger seed counts, broader searches, and tests of the proposed explanations are the natural next steps.
+
+\begin{center}
+\textbf{Declarations}
+\end{center}
+
+\textbf{Data availability.} All datasets are public. Revisions used (Hugging Face commit hashes, first eight characters): SIB-200 \texttt{38977a66}; WikiANN \texttt{f0a3be6d}; news corpus \texttt{f9399a72}; XLM-R-base \texttt{e73636d4}; mBERT \texttt{3f076fdb}; TahrirchiBERT-base \texttt{e9961825}; TahrirchiBERT-small \texttt{16d3c1b5} (weights) and \texttt{1940aa76} (tokenizer and configuration) (the first is the revision with the \texttt{safetensors} weights, the second the current tokenizer and configuration revision of the same repository). Licences: SIB-200 is tagged CC BY-SA 4.0 on its Hugging Face card; the news corpus is released on Zenodo under CC BY 4.0 (its Hugging Face card states no licence); the WikiANN card on Hugging Face lists the licence as unknown; the TahrirchiBERT-base card states Apache-2.0. Code and run-level results: \todo{INFORMATION REQUIRED: repository URL}.
+
+\textbf{Use of AI tools.} An AI assistant (Claude, Anthropic) was used to help write the analysis code and to draft and edit this text. The author is responsible for the experimental design, the verification of all results and statements, and the final content.
+
+\textbf{Funding, conflicts of interest, ethics.} \todo{INFORMATION REQUIRED}. The study uses only public text and involves no human participants.
+
+\begin{center}\textbf{REFERENCES}\end{center}
+\begin{enumerate}
+\item Devlin, J.; Chang, M.-W.; Lee, K.; Toutanova, K. BERT: Pre-training of deep bidirectional transformers for language understanding. {\em Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1}, Minneapolis, 2019, 4171--4186. doi:10.18653/v1/N19-1423.
+
+\item Conneau, A.; Khandelwal, K.; Goyal, N.; Chaudhary, V.; Wenzek, G.; Guzm\'an, F.; Grave, E.; Ott, M.; Zettlemoyer, L.; Stoyanov, V. Unsupervised cross-lingual representation learning at scale. {\em Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics}, 2020, 8440--8451. doi:10.18653/v1/2020.acl-main.747.
+
+\item Rust, P.; Pfeiffer, J.; Vuli\'c, I.; Ruder, S.; Gurevych, I. How good is your tokenizer? On the monolingual performance of multilingual language models. {\em Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1)}, 2021, 3118--3135. doi:10.18653/v1/2021.acl-long.243.
+
+\item Pan, X.; Zhang, B.; May, J.; Nothman, J.; Knight, K.; Ji, H. Cross-lingual name tagging and linking for 282 languages. {\em Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics (Volume 1)}, Vancouver, 2017, 1946--1958. doi:10.18653/v1/P17-1178.
+
+\item Adelani, D. I.; Liu, H.; Shen, X.; Vassilyev, N.; Alabi, J. O.; Mao, Y.; Gao, H.; Lee, A. E.-S. SIB-200: A simple, inclusive, and big evaluation dataset for topic classification in 200+ languages and dialects. {\em Proc. EACL 2024 (Volume 1: Long Papers)}, 226--245 (2024), doi:10.18653/v1/2024.eacl-long.14.
+
+\item Kuriyozov, E.; Salaev, U.; Matlatipov, S.; Matlatipov, G. Text classification dataset and analysis for Uzbek language. {\em arXiv} 2302.14494 (2023). (preprint; no journal reference was found)
+
+\item Mamasaidov, M.; Shopulatov, A. TahrirchiBERT base (model card). Hugging Face, 2023. https://huggingface.co/tahrirchi/tahrirchi-bert-base.
+
+\item Gururangan, S.; Swayamdipta, S.; Levy, O.; Schwartz, R.; Bowman, S. R.; Smith, N. A. Annotation artifacts in natural language inference data. {\em Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 2}, New Orleans, 2018, 107--112. doi:10.18653/v1/N18-2017.
+
+\item Geirhos, R.; Jacobsen, J.-H.; Michaelis, C.; Zemel, R.; Brendel, W.; Bethge, M.; Wichmann, F. A. Shortcut learning in deep neural networks. {\em Nature Machine Intelligence} \textbf{2}(11), 665--673 (2020), doi:10.1038/s42256-020-00257-z.
+\end{enumerate}
+
+\textcolor{blue}{Cite this article}
+
+J.~Rajabov, {\textit{Encoder models for Uzbek text classification and named entity recognition: a controlled comparison with tokenization and orthographic-variation analysis}}, \textbf{Acta~NUUz},~ 2026, 2/**, pp. \pageref{firstpage}-\pageref{lastpage}.
+
+\label{lastpage}
+
+\end{document}
