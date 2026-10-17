@@ -1,0 +1,17 @@
+model,length_bin,n,accuracy
+mbert,Q1 (eng qisqa),1252,0.8159744408945687
+mbert,Q2,1249,0.8200160128102482
+mbert,Q3,1249,0.7820656525220177
+mbert,Q4 (eng uzun),1250,0.74368
+tahrirchi-base,Q1 (eng qisqa),1252,0.8835463258785943
+tahrirchi-base,Q2,1249,0.889031224979984
+tahrirchi-base,Q3,1249,0.8616493194555644
+tahrirchi-base,Q4 (eng uzun),1250,0.84416
+tahrirchi-small,Q1 (eng qisqa),1252,0.8843450479233227
+tahrirchi-small,Q2,1249,0.877502001601281
+tahrirchi-small,Q3,1249,0.856365092073659
+tahrirchi-small,Q4 (eng uzun),1250,0.82032
+xlmr-base,Q1 (eng qisqa),1252,0.842332268370607
+xlmr-base,Q2,1249,0.8429143314651721
+xlmr-base,Q3,1249,0.8027221777421938
+xlmr-base,Q4 (eng uzun),1250,0.75792
