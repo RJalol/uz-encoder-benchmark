@@ -76,7 +76,7 @@ We compare four transformer encoders on three Uzbek benchmarks: XLM-R-base, mult
 \textbf{Introduction}
 \end{center}
 
-Uzbek is usually treated as a low-resource language in natural language processing. Practitioners who need a pretrained encoder for Uzbek text usually choose between two kinds of models: multilingual encoders such as mBERT [1] and XLM-R [2], which cover Uzbek among many other languages, and encoders trained on Uzbek text alone, such as TahrirchiBERT [7]. A fair comparison between them is harder than it looks. The models differ in size, tokenizer and pretraining data, and a single fixed training recipe can favour one family over another without anyone intending it.
+Uzbek is usually treated as a low-resource language in natural language processing. Practitioners who need a pretrained encoder for Uzbek text usually choose between two kinds of models: multilingual encoders such as mBERT [1] and XLM-R [2], which cover Uzbek among many other languages, and encoders trained on Uzbek text alone, such as TahrirchiBERT [7]. Public Uzbek resources have grown in recent years and now include a news classification corpus [6], sentiment data from restaurant reviews [10] and an aspect-based sentiment dataset [11], which makes systematic comparisons of encoders more feasible. A fair comparison between them is harder than it looks. The models differ in size, tokenizer and pretraining data, and a single fixed training recipe can favour one family over another without anyone intending it.
 
 This paper reports a controlled comparison of four encoders on three public Uzbek benchmarks, and it also examines why some of the observed differences appear. Our main findings are as follows.
 
@@ -305,6 +305,8 @@ In a controlled comparison on three Uzbek benchmarks, TahrirchiBERT-base was the
 \item Gururangan, S.; Swayamdipta, S.; Levy, O.; Schwartz, R.; Bowman, S. R.; Smith, N. A. Annotation artifacts in natural language inference data. {\em Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 2}, New Orleans, 2018, 107--112. doi:10.18653/v1/N18-2017.
 
 \item Geirhos, R.; Jacobsen, J.-H.; Michaelis, C.; Zemel, R.; Brendel, W.; Bethge, M.; Wichmann, F. A. Shortcut learning in deep neural networks. {\em Nature Machine Intelligence} \textbf{2}(11), 665--673 (2020), doi:10.1038/s42256-020-00257-z.
+\item Matlatipov, S.; Rahimboeva, H.; Rajabov, J.; Kuriyozov, E. Uzbek sentiment analysis based on local restaurant reviews. {\em arXiv} 2205.15930 (2022).
+\item Matlatipov, S. G.; Rajabov, J.; Kuriyozov, E.; Aripov, M. UzABSA: Aspect-based sentiment analysis for the Uzbek language. In {\em Proc. 3rd Annual Meeting of the Special Interest Group on Under-resourced Languages @ LREC-COLING 2024}, 394--403. ELRA and ICCL, Torino, Italia (2024).
 \end{enumerate}
 
 \textcolor{blue}{Cite this article}
